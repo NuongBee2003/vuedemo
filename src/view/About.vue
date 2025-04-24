@@ -15,7 +15,9 @@ export default {
       // đồng thời lùi WebView history (nếu dùng WebView)
       window.history.back()
       if (window.ReactNativeWebView){
-        window.ReactNativeWebView.postMessage('GO_BACK')
+       window.ReactNativeWebView.postMessage(JSON.stringify({
+        type: 'GO_BACK'
+        }))
       }
     }
   }
