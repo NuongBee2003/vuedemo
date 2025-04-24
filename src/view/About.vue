@@ -13,7 +13,7 @@ export default {
       // lùi router
       this.$router.back()
       // đồng thời lùi WebView history (nếu dùng WebView)
-      window.history.back()
+     // window.history.back()
       if (window.ReactNativeWebView){
        window.ReactNativeWebView.postMessage(JSON.stringify({
         type: 'GO_BACK'
