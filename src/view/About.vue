@@ -1,38 +1,48 @@
-<!-- File: InputScaleIosTest.vue -->
 <template>
-  <div class="p-4 space-y-6">
-    <!-- Repro lỗi: scale đặt trên chính input -->
+  <div class="p-4 space-y-8">
+    <!-- 1️⃣ Broken -->
     <section>
-      <h3 class="text-lg font-semibold mb-2">Broken (scale trên input)</h3>
+      <h3 class="text-lg font-semibold mb-2 text-red-500">
+        Broken (scale trên input → iOS KHÔNG hiện bàn phím)
+      </h3>
       <input
         v-model="broken"
         :class="brokenInputClass"
-        placeholder="Tap ở iOS → thường KHÔNG mở bàn phím"
+        placeholder="Tap ở iOS → KHÔNG bật bàn phím"
         autocomplete="off"
-        autocapitalize="off"
-        spellcheck="false"
       />
     </section>
 
-    <!-- Bản sửa: scale ở wrapper, input giữ font-size 16px -->
+    <!-- 2️⃣ Fixed -->
     <section>
-      <h3 class="text-lg font-semibold mb-2">Fixed (scale ở wrapper, KHÔNG scale input)</h3>
-
-      <!-- iOS: KHÔNG áp scale để tránh bug hit-test -->
+      <h3 class="text-lg font-semibold mb-2 text-green-500">
+        Fixed (scale ở wrapper → iOS OK)
+      </h3>
       <div :class="isIOS ? 'origin-left' : 'origin-left scale-[0.875]'">
         <input
           v-model="fixed"
           :class="fixedInputClass"
-          placeholder="Tap ở iOS → bàn phím MỞ bình thường"
+          placeholder="Tap ở iOS → Bật bàn phím OK"
           autocomplete="off"
-          autocapitalize="off"
-          spellcheck="false"
         />
       </div>
+    </section>
 
-      <p class="mt-2 text-sm text-gray-500">
-        iOS được giữ <code>font-size:16px</code> để tránh auto-zoom.
-        Các nền tảng khác vẫn nhìn như 14px nhờ scale ở wrapper.
+    <!-- 3️⃣ Safe 14px look -->
+    <section>
+      <h3 class="text-lg font-semibold mb-2 text-blue-500">
+        Safe 14px look (no scale, dùng zoom)
+      </h3>
+      <div class="safe14-wrapper origin-left">
+        <input
+          v-model="safe"
+          :class="safeInputClass"
+          placeholder="Trông như 14px, iOS vẫn gõ được"
+          autocomplete="off"
+        />
+      </div>
+      <p class="mt-2 text-sm text-gray-400">
+        Dùng <code>zoom:0.875</code> thay vì <code>transform:scale()</code> — không gây lỗi hit-test.
       </p>
     </section>
   </div>
@@ -41,7 +51,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 
-// detect iOS rất đơn giản (đủ cho test)
 const isIOS = /iPad|iPhone|iPod/i.test(navigator.userAgent)
 
 const baseInputClass =
@@ -50,21 +59,23 @@ const baseInputClass =
   'placeholder:text-gray-600 focus-visible:outline-none ' +
   'disabled:cursor-not-allowed disabled:opacity-50'
 
-// LỚP GÂY LỖI: scale đặt trực tiếp trên input
-const brokenInputClass = computed(
-  () => baseInputClass + ' scale-[0.875] origin-left'
-)
-
-// BẢN SỬA: KHÔNG scale trên input
+// 1️⃣ Lỗi thật
+const brokenInputClass = computed(() => baseInputClass + ' scale-[0.875] origin-left')
+// 2️⃣ Sửa
 const fixedInputClass = computed(() => baseInputClass)
+// 3️⃣ Safe 14px
+const safeInputClass = computed(() => baseInputClass + ' text-[16px]') // vẫn 16px thật
 
 const broken = ref('')
 const fixed = ref('')
+const safe = ref('')
 </script>
 
-<style>
-/* Bảo đảm iOS không tự phóng chữ khi focus */
+<style scoped>
 html, body { -webkit-text-size-adjust: 100%; }
 
-/* Trường hợp bạn dùng Tailwind, các class ở trên là đủ; phần CSS này chỉ nhắc bổ sung. */
+/* 3️⃣ Safe 14px look: Dùng zoom (an toàn trên iOS) */
+.safe14-wrapper {
+  zoom: 0.875;               /* Giảm toàn bộ tỉ lệ render, KHÔNG ảnh hưởng hit-test */
+}
 </style>
