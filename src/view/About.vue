@@ -28,6 +28,10 @@
       </div>
     </section>
 
+    <section>
+      <input>nhapppp</input>
+    </section>
+
     <!-- 3️⃣ Safe 14px look -->
     <section>
       <h3 class="text-lg font-semibold mb-2 text-blue-500">
